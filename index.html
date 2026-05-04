@@ -16,6 +16,7 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
 .subtitle{text-align:center;color:#888;font-size:0.85rem;margin-bottom:28px}
 .card{background:#fff;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
 .card-title{font-size:0.9rem;font-weight:600;color:#555;margin-bottom:14px;letter-spacing:-0.02em}
+.card-title.spaced{margin-top:20px}
 .btn-group{display:flex;gap:8px;flex-wrap:wrap}
 .btn{padding:10px 18px;border:2px solid #d0d5dd;border-radius:10px;background:#fff;color:#555;font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.2s;user-select:none;text-align:center;flex:1;min-width:80px}
 .btn:hover{border-color:#3b82f6;color:#3b82f6}
@@ -26,6 +27,11 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
 .input-field{flex:1;padding:10px 14px;border:2px solid #e0e0e0;border-radius:10px;font-size:0.95rem;outline:none;transition:border-color 0.2s}
 .input-field:focus{border-color:#3b82f6}
 .input-unit{font-size:0.85rem;color:#888;min-width:20px}
+.calc-btn{width:100%;padding:16px;background:#2563eb;color:#fff;font-size:1rem;font-weight:700;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.35);transition:all 0.2s;margin-bottom:12px}
+.calc-btn:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,99,235,0.45)}
+.calc-btn:active{transform:translateY(0)}
+.reset-btn{width:100%;padding:12px;background:#fff;color:#6b7280;font-size:0.88rem;font-weight:500;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;margin-bottom:16px}
+.reset-btn:hover{background:#f9fafb;border-color:#d1d5db}
 .result-box{background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:14px;padding:24px;color:#fff;box-shadow:0 4px 20px rgba(37,99,235,0.3)}
 .result-title{font-size:1rem;font-weight:700;margin-bottom:18px;letter-spacing:-0.02em}
 .result-section{margin-bottom:18px}
@@ -39,16 +45,30 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
 .result-single:last-child{margin-bottom:0}
 .result-single-label{font-size:0.82rem;color:rgba(255,255,255,0.7)}
 .result-single-value{font-size:1.1rem;font-weight:700}
-.result-single-sub{font-size:0.72rem;color:rgba(255,255,255,0.5);margin-top:2px}
 .hidden{display:none!important}
 .divider{height:1px;background:rgba(255,255,255,0.15);margin:16px 0}
-.note{font-size:0.72rem;color:rgba(255,255,255,0.5);margin-top:8px;line-height:1.5}
-.badge{display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.2);border-radius:6px;font-size:0.7rem;margin-left:6px;vertical-align:middle}
 .retro-detail{font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:6px;line-height:1.6}
+.tier-row{display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:center;margin-bottom:8px}
+.tier-row:last-child{margin-bottom:0}
+.tier-label{font-size:0.85rem;color:#555}
+.tier-input{padding:8px 12px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.9rem;outline:none;text-align:right;width:100%}
+.tier-input:focus{border-color:#3b82f6}
+.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option-toggle{display:flex;align-items:center;gap:10px;padding:12px;border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;transition:all 0.15s}
+.option-toggle:hover{border-color:#3b82f6}
+.option-toggle.checked{border-color:#2563eb;background:#eff6ff}
+.option-toggle input{width:18px;height:18px;cursor:pointer}
+.option-toggle span{font-size:0.85rem;color:#555}
+.option-toggle.checked span{color:#1d4ed8;font-weight:600}
+.guide-card{background:#f9fafb;border-left:4px solid #2563eb;border-radius:8px;padding:14px 16px;margin-top:12px;font-size:0.78rem;color:#4b5563;line-height:1.7}
+.guide-card .guide-title{font-weight:700;color:#1f2937;margin-bottom:6px;font-size:0.85rem}
+.placeholder-msg{text-align:center;padding:40px 20px;color:rgba(255,255,255,0.55);font-size:0.9rem;line-height:1.6}
 @media(max-width:480px){
   .btn{padding:8px 10px;font-size:0.8rem;min-width:60px}
   .result-grid{grid-template-columns:1fr}
   .container{padding:16px 10px}
+  .tier-row{grid-template-columns:1fr 90px}
+  .option-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -67,17 +87,24 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
     </div>
   </div>
 
-  <!-- 사업자/계약유형 -->
+  <!-- 사업자/계약유형/신고대리 -->
   <div class="card">
     <div class="card-title">사업자 유형</div>
-    <div class="btn-group" id="entityType" style="margin-bottom:14px">
+    <div class="btn-group" id="entityType">
       <div class="btn" data-val="individual" onclick="selectBtn('entityType',this)">개인사업자</div>
       <div class="btn" data-val="corporate" onclick="selectBtn('entityType',this)">법인사업자</div>
     </div>
-    <div class="card-title">계약 유형</div>
+
+    <div class="card-title spaced">계약 유형</div>
     <div class="btn-group" id="contractType">
       <div class="btn" data-val="new" onclick="selectBtn('contractType',this)">신규</div>
       <div class="btn" data-val="transfer" onclick="selectBtn('contractType',this)">이관</div>
+    </div>
+
+    <div class="card-title spaced">신고대리</div>
+    <div class="btn-group" id="repMode">
+      <div class="btn active" data-val="no" onclick="selectBtn('repMode',this)">신고대리 미포함</div>
+      <div class="btn" data-val="yes" onclick="selectBtn('repMode',this)">신고대리 포함</div>
     </div>
   </div>
 
@@ -91,6 +118,36 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
     </div>
   </div>
 
+  <!-- 구매대행 (전자상거래) -->
+  <div class="card hidden" id="purchaseAgencyCard">
+    <div class="card-title">구매대행 추가 사업장 (매출 구간별)</div>
+    <div class="tier-row">
+      <span class="tier-label">2억 이상 (90,000원/장)</span>
+      <input type="number" class="tier-input" id="pa-over2" min="0" step="1" placeholder="0">
+    </div>
+    <div class="tier-row">
+      <span class="tier-label">1억 초과~2억 (70,000원/장)</span>
+      <input type="number" class="tier-input" id="pa-to2" min="0" step="1" placeholder="0">
+    </div>
+    <div class="tier-row">
+      <span class="tier-label">1억 이하 (50,000원/장)</span>
+      <input type="number" class="tier-input" id="pa-to1" min="0" step="1" placeholder="0">
+    </div>
+    <div class="tier-row">
+      <span class="tier-label">5천만원 이하 (30,000원/장)</span>
+      <input type="number" class="tier-input" id="pa-to05" min="0" step="1" placeholder="0">
+    </div>
+    <div class="tier-row">
+      <span class="tier-label">1,000만원 이하 (20,000원/장)</span>
+      <input type="number" class="tier-input" id="pa-to01" min="0" step="1" placeholder="0">
+    </div>
+    <div class="guide-card">
+      <div class="guide-title">구매대행 기장료 기준</div>
+      1개 사업자: 9만원<br>
+      2개 이상: 추가 사업장은 매출 구간별로 책정 (위 표 참조)
+    </div>
+  </div>
+
   <!-- 과세유형 (개인) -->
   <div class="card hidden" id="taxTypeCard">
     <div class="card-title">과세 유형</div>
@@ -100,32 +157,87 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
     </div>
   </div>
 
+  <!-- 신고대리 옵션 (신고대리=포함) -->
+  <div class="card hidden" id="repOptionsCard">
+    <div class="card-title">신고대리 유형</div>
+    <div class="btn-group" id="repIncomeType">
+      <div class="btn" data-val="personal" onclick="selectBtn('repIncomeType',this)">인적용역(3.3%)</div>
+      <div class="btn" data-val="business" onclick="selectBtn('repIncomeType',this)">사업소득(사업장)</div>
+      <div class="btn" data-val="double" onclick="selectBtn('repIncomeType',this)">복식부기</div>
+    </div>
+
+    <div class="card-title spaced" id="repBookTitle">장부 유형</div>
+    <div class="btn-group" id="repBookType">
+      <div class="btn" data-val="simple" onclick="selectBtn('repBookType',this)">단순경비율</div>
+      <div class="btn" data-val="book" onclick="selectBtn('repBookType',this)">간편장부</div>
+    </div>
+
+    <div class="card-title spaced">추가 조건 (해당 항목 체크)</div>
+    <div class="option-grid">
+      <label class="option-toggle" id="opt-common">
+        <input type="checkbox" id="rep-common" onchange="toggleOption(this)">
+        <span>공동사업자</span>
+      </label>
+      <label class="option-toggle" id="opt-salary">
+        <input type="checkbox" id="rep-salary" onchange="toggleOption(this)">
+        <span>근로소득 합산 (연말정산 X)</span>
+      </label>
+      <label class="option-toggle" id="opt-interest">
+        <input type="checkbox" id="rep-interest" onchange="toggleOption(this)">
+        <span>이자/배당소득 합산</span>
+      </label>
+      <label class="option-toggle" id="opt-other">
+        <input type="checkbox" id="rep-other" onchange="toggleOption(this)">
+        <span>기타소득 합산</span>
+      </label>
+    </div>
+    <div class="input-row" id="rep-other-row" style="margin-top:12px">
+      <span class="input-label">기타소득 건수</span>
+      <input class="input-field" type="number" id="rep-other-count" placeholder="0" min="0" step="1">
+      <span class="input-unit">건</span>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-title">신고대리 보수 가이드</div>
+      <strong>1·2. 사업소득 (인적용역 / 사업장별)</strong><br>
+      · 단순경비율: 110,000원<br>
+      · 간편장부: 3천만원 미만 220,000원 / 3~4천 275,000원 / 4~5천 330,000원 / 5~7,500만 385,000~495,000원 / 7,500만 이상 55만원~수입금액 1% 범위 내 (할인 0.7~0.8%)<br>
+      <strong>4. 사업소득 (복식부기)</strong><br>
+      · 소급 기장료 × 80% (간편장부 대상자가 복식부기 신고 시 포함)<br>
+      <strong>5. 타소득 합산</strong><br>
+      · 근로소득 +55,000원 (연말정산 미진행 시)<br>
+      · 이자/배당 +220,000원<br>
+      · 기타소득 +55,000원 (5건당) / 5건 초과당 +11,000원<br>
+      <strong>6. 공동사업자</strong> 타소득 없을 시 기본 110,000원
+    </div>
+  </div>
+
   <!-- 입력 -->
   <div class="card">
     <div class="card-title">상세 정보</div>
     <div class="input-row">
       <span class="input-label">연매출</span>
-      <input class="input-field" type="number" id="revenue" placeholder="0" min="0" step="0.1" oninput="calc()">
+      <input class="input-field" type="number" id="revenue" placeholder="0" min="0" step="0.1">
       <span class="input-unit">억</span>
     </div>
     <div class="input-row hidden" id="investRow">
       <span class="input-label">투자금액</span>
-      <input class="input-field" type="number" id="investment" placeholder="0" min="0" step="0.1" oninput="calc()">
+      <input class="input-field" type="number" id="investment" placeholder="0" min="0" step="0.1">
       <span class="input-unit">억</span>
     </div>
     <div class="input-row">
       <span class="input-label">직원수</span>
-      <input class="input-field" type="number" id="employees" placeholder="0" min="0" step="1" oninput="calc()">
+      <input class="input-field" type="number" id="employees" placeholder="0" min="0" step="1">
       <span class="input-unit">명</span>
     </div>
     <div class="input-row hidden" id="bankRow">
       <span class="input-label">통장 갯수</span>
-      <input class="input-field" type="number" id="bankAccounts" placeholder="0" min="0" step="1" oninput="calc()">
+      <input class="input-field" type="number" id="bankAccounts" placeholder="0" min="0" step="1">
       <span class="input-unit">개</span>
     </div>
     <div class="input-row" id="contractMonthRow">
       <span class="input-label">계약월</span>
-      <select class="input-field" id="contractMonth" onchange="calc()">
+      <select class="input-field" id="contractMonth">
         <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
         <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
         <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
@@ -135,69 +247,95 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
     </div>
   </div>
 
+  <!-- 계산하기 / 초기화 -->
+  <button class="calc-btn" onclick="calc()">계산하기</button>
+  <button class="reset-btn" onclick="resetAll()">초기화</button>
+
   <!-- 결과 -->
   <div class="result-box" id="resultBox">
-    <div class="result-title">계산 결과</div>
-
-    <div class="result-section">
-      <div class="result-section-title">예상 기장료 (월, 만원)</div>
-      <div class="result-grid">
-        <div class="result-item">
-          <div class="result-item-label">기본</div>
-          <div class="result-item-value" id="feeBasic">-</div>
-        </div>
-        <div class="result-item">
-          <div class="result-item-label">분기결산</div>
-          <div class="result-item-value" id="feeQuarterly">-</div>
-        </div>
-        <div class="result-item">
-          <div class="result-item-label">월결산</div>
-          <div class="result-item-value" id="feeMonthly">-</div>
-        </div>
-      </div>
+    <div class="placeholder-msg" id="placeholderMsg">
+      옵션과 정보를 입력한 뒤<br>
+      <strong>계산하기</strong> 버튼을 눌러주세요.
     </div>
 
-    <div class="divider"></div>
+    <div id="resultContent" class="hidden">
+      <div class="result-title">계산 결과</div>
 
-    <div class="result-section">
-      <div class="result-section-title">예상 조정료 (연, VAT 별도)</div>
-      <div id="adjResultArea">
-        <div class="result-single" id="adjSingleRow">
-          <span class="result-single-label">세무조정 보수</span>
-          <span class="result-single-value" id="adjFee">-</span>
+      <div class="result-section">
+        <div class="result-section-title">예상 기장료 (월, 만원)</div>
+        <div class="result-grid">
+          <div class="result-item">
+            <div class="result-item-label">기본</div>
+            <div class="result-item-value" id="feeBasic">-</div>
+          </div>
+          <div class="result-item">
+            <div class="result-item-label">분기결산</div>
+            <div class="result-item-value" id="feeQuarterly">-</div>
+          </div>
+          <div class="result-item">
+            <div class="result-item-label">월결산</div>
+            <div class="result-item-value" id="feeMonthly">-</div>
+          </div>
         </div>
       </div>
-      <div id="adjStartupArea" class="hidden">
-        <div class="result-single">
-          <div>
+
+      <!-- 구매대행 기장료 (전자상거래) -->
+      <div id="paResultSection" class="hidden">
+        <div class="divider"></div>
+        <div class="result-section">
+          <div class="result-section-title">구매대행 기장료 (월)</div>
+          <div class="result-single">
+            <span class="result-single-label">기본 (1번째 사업장)</span>
+            <span class="result-single-value">90,000원</span>
+          </div>
+          <div class="result-single">
+            <span class="result-single-label" id="paAddLabel">추가 사업장 (0장)</span>
+            <span class="result-single-value" id="paAddFee">0원</span>
+          </div>
+          <div class="result-single" style="background:rgba(255,255,255,0.22)">
+            <span class="result-single-label" style="font-weight:600">구매대행 합계</span>
+            <span class="result-single-value" id="paTotal">90,000원</span>
+          </div>
+          <div class="retro-detail" id="paDetail"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-section-title">예상 조정료 (연, VAT 별도)</div>
+        <div id="adjResultArea">
+          <div class="result-single" id="adjSingleRow">
+            <span class="result-single-label">세무조정 보수</span>
+            <span class="result-single-value" id="adjFee">-</span>
+          </div>
+        </div>
+        <div id="adjStartupArea" class="hidden">
+          <div class="result-single">
             <span class="result-single-label">매출 기준 조정료</span>
+            <span class="result-single-value" id="adjRevenue">-</span>
           </div>
-          <span class="result-single-value" id="adjRevenue">-</span>
-        </div>
-        <div class="result-single">
-          <div>
+          <div class="result-single">
             <span class="result-single-label">투자금액 기준 조정료</span>
+            <span class="result-single-value" id="adjInvest">-</span>
           </div>
-          <span class="result-single-value" id="adjInvest">-</span>
+        </div>
+        <div id="adjSungsil" class="hidden">
+          <div class="result-single">
+            <span class="result-single-label">성실신고 추가</span>
+            <span class="result-single-value">+2,000,000원</span>
+          </div>
+        </div>
+        <div class="result-single" id="adjTotalRow" style="background:rgba(255,255,255,0.22)">
+          <span class="result-single-label" style="font-weight:600">조정료 합계</span>
+          <span class="result-single-value" id="adjTotal">-</span>
         </div>
       </div>
-      <div id="adjSungsil" class="hidden">
-        <div class="result-single">
-          <span class="result-single-label">성실신고 추가</span>
-          <span class="result-single-value">+2,000,000원</span>
-        </div>
-      </div>
-      <div class="result-single" id="adjTotalRow" style="background:rgba(255,255,255,0.22)">
-        <span class="result-single-label" style="font-weight:600">조정료 합계</span>
-        <span class="result-single-value" id="adjTotal">-</span>
-      </div>
-    </div>
 
-    <div class="divider"></div>
+      <div class="divider"></div>
 
-    <div class="result-section">
-      <div class="result-section-title">소급기장료 (신규만 해당)</div>
-      <div id="retroArea">
+      <div class="result-section">
+        <div class="result-section-title">소급기장료 (신규만 해당)</div>
         <div class="result-single">
           <span class="result-single-label">소급기장료</span>
           <span class="result-single-value" id="retroFee">-</span>
@@ -208,18 +346,36 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
         </div>
         <div class="retro-detail" id="retroDetail"></div>
       </div>
+
+      <!-- 신고대리 -->
+      <div id="repResultSection" class="hidden">
+        <div class="divider"></div>
+        <div class="result-section">
+          <div class="result-section-title">종소세 신고대리 수수료 (VAT 별도)</div>
+          <div id="repBreakdown"></div>
+          <div class="result-single" style="background:rgba(255,255,255,0.22)">
+            <span class="result-single-label" style="font-weight:600">신고대리 합계</span>
+            <span class="result-single-value" id="repTotal">-</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+// ====================================================
 // State
+// ====================================================
 const state = {
   bizType: null,
   entityType: null,
   contractType: null,
   platformType: null,
   taxType: null,
+  repMode: 'no',
+  repIncomeType: null,
+  repBookType: null,
 };
 
 function selectBtn(group, el) {
@@ -228,23 +384,30 @@ function selectBtn(group, el) {
   el.classList.add('active');
   state[group] = el.dataset.val;
   updateVisibility();
-  calc();
+}
+
+function toggleOption(input) {
+  const label = input.closest('.option-toggle');
+  label.classList.toggle('checked', input.checked);
 }
 
 function updateVisibility() {
-  // 플랫폼 card: only for 전자상거래
   document.getElementById('platformCard').classList.toggle('hidden', state.bizType !== 'ecommerce');
-  // 과세유형 card: only for 개인
+  document.getElementById('purchaseAgencyCard').classList.toggle('hidden', state.bizType !== 'ecommerce');
   document.getElementById('taxTypeCard').classList.toggle('hidden', state.entityType !== 'individual');
-  // 투자금액: only for 스타트업
   document.getElementById('investRow').classList.toggle('hidden', state.bizType !== 'startup');
-  // 통장갯수: only for 스타트업
   document.getElementById('bankRow').classList.toggle('hidden', state.bizType !== 'startup');
+  document.getElementById('repOptionsCard').classList.toggle('hidden', state.repMode !== 'yes');
+
+  // 신고대리 유형이 복식부기면 장부 유형 숨김
+  const isDouble = state.repIncomeType === 'double';
+  document.getElementById('repBookTitle').classList.toggle('hidden', isDouble);
+  document.getElementById('repBookType').classList.toggle('hidden', isDouble);
 }
 
-// ====== 기장료 TABLES (만원/월) ======
-
-// 법인 전자상거래/스타트업/일반
+// ====================================================
+// 기장료 TABLES (만원/월)
+// ====================================================
 const corpFeeTable = [
   { max: 5,   b: 15,  q: 25,  m: 30 },
   { max: 15,  b: 20,  q: 30,  m: 40 },
@@ -259,7 +422,6 @@ const corpFeeTable = [
   { max: 300, b: 200, q: 250, m: 300 },
 ];
 
-// 개인 10억 이상
 const indivHighTable = [
   { max: 15,  b: 10,  q: 20,  m: 30, exclusive: true },
   { max: 20,  b: 25,  q: 35,  m: 50 },
@@ -280,41 +442,62 @@ function getCorpFee(rev) {
 
 function getIndivFee(rev, taxType, employees) {
   const emp = parseInt(employees) || 0;
-  // 10억 미만
   if (rev <= 10) {
-    // 성실신고: 매출 기준 (보통 5억 이상이면 성실, 여기서는 사용자가 직접 선택하지 않으므로
-    // 10억 미만 성실이면 15만원 → 별도 조건 체크 필요. 일단 과세유형 기반으로.
-    if (taxType === 'simplified') {
-      return { b: 8, q: '-', m: 20 };
-    }
-    if (emp > 0) {
-      return { b: 10, q: 15, m: 25 };
-    }
+    if (taxType === 'simplified') return { b: 8, q: '-', m: 20 };
+    if (emp > 0) return { b: 10, q: 15, m: 25 };
     return { b: 9, q: 12, m: 20 };
   }
-  // 10억 초과
   for (const t of indivHighTable) {
     if (t.exclusive ? rev < t.max : rev <= t.max) return { b: t.b, q: t.q, m: t.m };
   }
   return { b: '별도문의', q: '별도문의', m: '별도문의' };
 }
 
-// 성실신고 해당 시 (개인, 10억 미만) 기본기장료 15만원으로 오버라이드
 function checkSungsil(rev, entityType) {
-  // 성실신고: 개인사업자, 일정 매출 이상 (여기서는 매출 5억 이상이면 성실신고 대상으로 간주)
-  // 근데 사용자가 10억 미만 성실이면 15만원이라고 했으므로, 5억 이상 ~ 10억 미만에서 적용
-  // 업종별로 다르지만 전자상거래/일반적으로 수입금액 6억 이상이면 성실신고 대상
-  // 여기서는 간단히: 개인 + 매출 >= 5 && 매출 < 10 → 성실
   return entityType === 'individual' && rev >= 5 && rev < 10;
 }
 
-// ====== 조정료 CALCULATION ======
+// ====================================================
+// 구매대행 기장료
+// ====================================================
+const PA_TABLE = {
+  over2: 90000, to2: 70000, to1: 50000, to05: 30000, to01: 20000,
+};
+const PA_LABEL = {
+  over2: '2억 이상', to2: '1억 초과~2억', to1: '1억 이하',
+  to05: '5천만원 이하', to01: '1,000만원 이하',
+};
+const PA_BASE = 90000;
+
+function calcPurchaseAgency() {
+  const counts = {
+    over2: parseInt(document.getElementById('pa-over2').value) || 0,
+    to2:   parseInt(document.getElementById('pa-to2').value) || 0,
+    to1:   parseInt(document.getElementById('pa-to1').value) || 0,
+    to05:  parseInt(document.getElementById('pa-to05').value) || 0,
+    to01:  parseInt(document.getElementById('pa-to01').value) || 0,
+  };
+  let addCount = 0, addFee = 0;
+  const detail = [];
+  for (const k of Object.keys(counts)) {
+    if (counts[k] > 0) {
+      const fee = counts[k] * PA_TABLE[k];
+      addCount += counts[k];
+      addFee += fee;
+      detail.push(`${PA_LABEL[k]} ${counts[k]}장 × ${PA_TABLE[k].toLocaleString()}원 = ${fee.toLocaleString()}원`);
+    }
+  }
+  return { base: PA_BASE, addCount, addFee, total: PA_BASE + addFee, detail: detail.join('<br>') };
+}
+
+// ====================================================
+// 조정료
+// ====================================================
 function calcAdjustmentFee(amountEok, isCorp) {
   if (amountEok >= 1000) return null;
   const w = amountEok * 100000000;
   const base = isCorp ? 500000 : 300000;
-
-  if (w < 100000000) return base; // 1억 미만
+  if (w < 100000000) return base;
 
   let fee = base;
   const tiers = [
@@ -325,7 +508,6 @@ function calcAdjustmentFee(amountEok, isCorp) {
     { from: 100e8, to: 500e8, rate: 0.0005 },
     { from: 500e8, to: 1000e8, rate: 0.0003 },
   ];
-
   for (const t of tiers) {
     if (w <= t.from) break;
     const excess = Math.min(w, t.to) - t.from;
@@ -335,12 +517,88 @@ function calcAdjustmentFee(amountEok, isCorp) {
 }
 
 function formatWon(n) {
-  if (n === null) return '별도요청';
+  if (n === null || n === undefined) return '별도요청';
   return n.toLocaleString('ko-KR') + '원';
 }
 
-// ====== MAIN CALC ======
+// ====================================================
+// 신고대리 (종소세) 계산
+// ====================================================
+function calcRepFee(revenue, retroFeeWon) {
+  if (state.repMode !== 'yes') return null;
+  if (!state.repIncomeType) return { error: '신고 유형을 선택해주세요.' };
+
+  const breakdown = [];
+  let total = 0;
+  const revWon = revenue * 100000000;
+
+  const isCommon = document.getElementById('rep-common').checked;
+  const hasSalary = document.getElementById('rep-salary').checked;
+  const hasInterest = document.getElementById('rep-interest').checked;
+  const hasOther = document.getElementById('rep-other').checked;
+  const otherCount = parseInt(document.getElementById('rep-other-count').value) || 0;
+  const hasOtherIncome = hasSalary || hasInterest || hasOther;
+
+  // 기본 사업소득
+  if (state.repIncomeType === 'double') {
+    const fee = Math.round(retroFeeWon * 0.8);
+    breakdown.push({ label: '복식부기 (소급기장료 × 80%)', value: fee });
+    total += fee;
+  } else {
+    const typeLabel = state.repIncomeType === 'personal' ? '인적용역(3.3%)' : '사업소득(사업장별)';
+    if (state.repBookType === 'simple') {
+      const fee = 110000;
+      breakdown.push({ label: `${typeLabel} 단순경비율`, value: fee });
+      total += fee;
+    } else if (state.repBookType === 'book') {
+      let fee, label;
+      if (revWon < 30000000)        { fee = 220000; label = '3천만원 미만'; }
+      else if (revWon < 40000000)   { fee = 275000; label = '3~4천만원'; }
+      else if (revWon < 50000000)   { fee = 330000; label = '4~5천만원'; }
+      else if (revWon < 75000000)   { fee = 440000; label = '5~7,500만원 (평균)'; }
+      else                           { fee = Math.max(550000, Math.round(revWon * 0.0075)); label = '7,500만원 이상 (~1% 범위)'; }
+      breakdown.push({ label: `${typeLabel} 간편장부 (${label})`, value: fee });
+      total += fee;
+    } else {
+      return { error: '장부 유형을 선택해주세요.' };
+    }
+  }
+
+  // 타소득 합산
+  if (hasSalary) { breakdown.push({ label: '근로소득 합산 (연말정산 X)', value: 55000 }); total += 55000; }
+  if (hasInterest) { breakdown.push({ label: '이자/배당소득 합산', value: 220000 }); total += 220000; }
+  if (hasOther && otherCount > 0) {
+    let otherFee = 55000;
+    if (otherCount > 5) otherFee += (otherCount - 5) * 11000;
+    breakdown.push({ label: `기타소득 합산 (${otherCount}건)`, value: otherFee });
+    total += otherFee;
+  }
+
+  // 공동사업자
+  if (isCommon && !hasOtherIncome) {
+    breakdown.push({ label: '공동사업자 (기본수수료)', value: 110000 });
+    total += 110000;
+  } else if (isCommon) {
+    breakdown.push({ label: '공동사업자', value: 0, note: '타소득 합산으로 기본수수료 미적용' });
+  }
+
+  return { breakdown, total };
+}
+
+// ====================================================
+// 메인 계산
+// ====================================================
 function calc() {
+  // 필수 선택 검증
+  if (!state.bizType) { alert('업종을 선택해주세요.'); return; }
+  if (!state.entityType) { alert('사업자 유형을 선택해주세요.'); return; }
+  if (!state.contractType) { alert('계약 유형을 선택해주세요.'); return; }
+  if (state.entityType === 'individual' && !state.taxType) { alert('과세 유형을 선택해주세요.'); return; }
+  if (state.bizType === 'ecommerce' && !state.platformType) { alert('플랫폼 유형을 선택해주세요.'); return; }
+
+  document.getElementById('placeholderMsg').classList.add('hidden');
+  document.getElementById('resultContent').classList.remove('hidden');
+
   const rev = parseFloat(document.getElementById('revenue').value) || 0;
   const invest = parseFloat(document.getElementById('investment').value) || 0;
   const emp = parseInt(document.getElementById('employees').value) || 0;
@@ -348,25 +606,35 @@ function calc() {
   const isCorp = state.entityType === 'corporate';
   const isNew = state.contractType === 'new';
   const isStartup = state.bizType === 'startup';
+  const isEcommerce = state.bizType === 'ecommerce';
 
-  // ---- 기장료 ----
+  // 기장료
   let fee;
   if (isCorp) {
     fee = getCorpFee(rev);
   } else {
     fee = getIndivFee(rev, state.taxType, emp);
-    // 성실신고 오버라이드 (10억 미만)
-    if (checkSungsil(rev, state.entityType)) {
-      fee = { ...fee, b: 15 };
-    }
+    if (checkSungsil(rev, state.entityType)) fee = { ...fee, b: 15 };
   }
-
   const fmt = v => (typeof v === 'number') ? v + '만원' : v;
   document.getElementById('feeBasic').textContent = fmt(fee.b);
   document.getElementById('feeQuarterly').textContent = fmt(fee.q);
   document.getElementById('feeMonthly').textContent = fmt(fee.m);
 
-  // ---- 조정료 ----
+  // 구매대행
+  const paSection = document.getElementById('paResultSection');
+  if (isEcommerce) {
+    paSection.classList.remove('hidden');
+    const pa = calcPurchaseAgency();
+    document.getElementById('paAddLabel').textContent = `추가 사업장 (${pa.addCount}장)`;
+    document.getElementById('paAddFee').textContent = pa.addFee.toLocaleString() + '원';
+    document.getElementById('paTotal').textContent = pa.total.toLocaleString() + '원';
+    document.getElementById('paDetail').innerHTML = pa.detail || '';
+  } else {
+    paSection.classList.add('hidden');
+  }
+
+  // 조정료
   const adjSingleRow = document.getElementById('adjSingleRow');
   const adjStartupArea = document.getElementById('adjStartupArea');
   const adjSungsilRow = document.getElementById('adjSungsil');
@@ -379,14 +647,9 @@ function calc() {
     document.getElementById('adjRevenue').textContent = formatWon(adjRev);
     document.getElementById('adjInvest').textContent = formatWon(adjInv);
 
-    // 성실신고 추가 (개인, 매출>=15억)
     let sungsilAdd = 0;
-    if (!isCorp && rev >= 15) {
-      adjSungsilRow.classList.remove('hidden');
-      sungsilAdd = 2000000;
-    } else {
-      adjSungsilRow.classList.add('hidden');
-    }
+    if (!isCorp && rev >= 15) { adjSungsilRow.classList.remove('hidden'); sungsilAdd = 2000000; }
+    else adjSungsilRow.classList.add('hidden');
 
     const mainAmount = Math.max(rev, invest);
     const adjMain = calcAdjustmentFee(mainAmount, isCorp);
@@ -399,60 +662,90 @@ function calc() {
     document.getElementById('adjFee').textContent = formatWon(adjAmount);
 
     let sungsilAdd = 0;
-    if (!isCorp && rev >= 15) {
-      adjSungsilRow.classList.remove('hidden');
-      sungsilAdd = 2000000;
-    } else {
-      adjSungsilRow.classList.add('hidden');
-    }
+    if (!isCorp && rev >= 15) { adjSungsilRow.classList.remove('hidden'); sungsilAdd = 2000000; }
+    else adjSungsilRow.classList.add('hidden');
 
     const totalAdj = adjAmount !== null ? adjAmount + sungsilAdd : null;
     document.getElementById('adjTotal').textContent = formatWon(totalAdj);
   }
 
-  // ---- 소급기장료 ----
-  const retroArea = document.getElementById('retroArea');
+  // 소급기장료
   const retroDetail = document.getElementById('retroDetail');
+  let retroTotal = 0;
 
-  if (!isNew || state.contractType === 'transfer') {
+  if (!isNew) {
     document.getElementById('retroFee').textContent = '해당없음';
     document.getElementById('retroFeeVat').textContent = '-';
     retroDetail.textContent = '이관의 경우 소급기장료가 발생하지 않습니다.';
-    if (state.contractType !== 'transfer' && state.contractType !== 'new') {
-      retroDetail.textContent = '계약 유형을 선택해주세요.';
-    }
-    return;
-  }
-
-  // 기본기장료 (만원) → 원
-  const basicFeeWon = (typeof fee.b === 'number') ? fee.b * 10000 : 0;
-
-  let retroTotal = 0;
-  let detailText = '';
-
-  if (month <= 6) {
-    // 상반기 계약: month개월 × 100%
-    retroTotal = basicFeeWon * month * 1.0;
-    detailText = `상반기 계약: ${fmt(fee.b)} × ${month}개월 × 100% = ${retroTotal.toLocaleString()}원`;
   } else {
-    // 하반기 계약
-    const h2months = month - 6; // 하반기 개월수
-    const h1months = 6; // 상반기 6개월
-    const h2fee = basicFeeWon * h2months * 1.0;
-    const h1fee = basicFeeWon * h1months * 0.6;
-    retroTotal = h2fee + h1fee;
-    detailText = `하반기분: ${fmt(fee.b)} × ${h2months}개월 × 100% = ${h2fee.toLocaleString()}원\n` +
-                 `상반기분: ${fmt(fee.b)} × ${h1months}개월 × 60% = ${h1fee.toLocaleString()}원`;
+    const basicFeeWon = (typeof fee.b === 'number') ? fee.b * 10000 : 0;
+    let detailText = '';
+    if (month <= 6) {
+      retroTotal = basicFeeWon * month * 1.0;
+      detailText = `상반기 계약: ${fmt(fee.b)} × ${month}개월 × 100% = ${retroTotal.toLocaleString()}원`;
+    } else {
+      const h2months = month - 6;
+      const h1months = 6;
+      const h2fee = basicFeeWon * h2months * 1.0;
+      const h1fee = basicFeeWon * h1months * 0.6;
+      retroTotal = h2fee + h1fee;
+      detailText = `하반기분: ${fmt(fee.b)} × ${h2months}개월 × 100% = ${h2fee.toLocaleString()}원\n` +
+                   `상반기분: ${fmt(fee.b)} × ${h1months}개월 × 60% = ${h1fee.toLocaleString()}원`;
+    }
+    const retroVat = Math.round(retroTotal * 1.1);
+    document.getElementById('retroFee').textContent = retroTotal.toLocaleString() + '원';
+    document.getElementById('retroFeeVat').textContent = retroVat.toLocaleString() + '원';
+    retroDetail.innerHTML = detailText.replace(/\n/g, '<br>');
   }
 
-  const retroVat = Math.round(retroTotal * 1.1);
-  document.getElementById('retroFee').textContent = retroTotal.toLocaleString() + '원';
-  document.getElementById('retroFeeVat').textContent = retroVat.toLocaleString() + '원';
-  retroDetail.innerHTML = detailText.replace(/\n/g, '<br>');
+  // 신고대리
+  const repSection = document.getElementById('repResultSection');
+  if (state.repMode === 'yes') {
+    repSection.classList.remove('hidden');
+    const rep = calcRepFee(rev, retroTotal);
+    const breakdownEl = document.getElementById('repBreakdown');
+    if (rep.error) {
+      breakdownEl.innerHTML = `<div class="result-single"><span class="result-single-label">${rep.error}</span></div>`;
+      document.getElementById('repTotal').textContent = '-';
+    } else {
+      let html = '';
+      for (const item of rep.breakdown) {
+        html += `<div class="result-single">
+          <span class="result-single-label">${item.label}${item.note ? ' <small style="opacity:0.7">('+item.note+')</small>' : ''}</span>
+          <span class="result-single-value">${item.value > 0 ? '+' + item.value.toLocaleString() + '원' : '-'}</span>
+        </div>`;
+      }
+      breakdownEl.innerHTML = html;
+      document.getElementById('repTotal').textContent = rep.total.toLocaleString() + '원';
+    }
+  } else {
+    repSection.classList.add('hidden');
+  }
 }
 
-// Init
-calc();
+// ====================================================
+// 초기화
+// ====================================================
+function resetAll() {
+  Object.keys(state).forEach(k => state[k] = null);
+  state.repMode = 'no';
+
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('#repMode .btn[data-val="no"]').classList.add('active');
+
+  document.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+  document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+    el.checked = false;
+    el.closest('.option-toggle').classList.remove('checked');
+  });
+  document.getElementById('contractMonth').value = '1';
+
+  updateVisibility();
+  document.getElementById('placeholderMsg').classList.remove('hidden');
+  document.getElementById('resultContent').classList.add('hidden');
+}
+
+updateVisibility();
 </script>
 </body>
 </html>
