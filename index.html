@@ -62,6 +62,13 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
 .option-toggle.checked span{color:#1d4ed8;font-weight:600}
 .guide-card{background:#f9fafb;border-left:4px solid #2563eb;border-radius:8px;padding:14px 16px;margin-top:12px;font-size:0.78rem;color:#4b5563;line-height:1.7}
 .guide-card .guide-title{font-weight:700;color:#1f2937;margin-bottom:6px;font-size:0.85rem}
+.card-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;font-size:0.9rem;font-weight:600;color:#555;margin-bottom:14px;letter-spacing:-0.02em}
+.card-toggle:hover{color:#2563eb}
+.card-toggle .toggle-icon{font-size:0.7rem;color:#9ca3af;transition:transform 0.2s ease}
+.card.collapsed .card-toggle{margin-bottom:0}
+.card.collapsed .card-toggle .toggle-icon{transform:rotate(-90deg)}
+.card.collapsed .card-body{display:none}
+.card-summary{font-size:0.78rem;color:#888;font-weight:500;margin-left:auto;margin-right:8px}
 .placeholder-msg{text-align:center;padding:40px 20px;color:rgba(255,255,255,0.55);font-size:0.9rem;line-height:1.6}
 @media(max-width:480px){
   .btn{padding:8px 10px;font-size:0.8rem;min-width:60px}
@@ -77,6 +84,18 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
   <h1>수수료 계산기(상담용)</h1>
   <p class="subtitle">세무법인 엑스퍼트 강남</p>
 
+  <!-- 서비스 유형 (최상단) -->
+  <div class="card">
+    <div class="card-title">서비스 유형</div>
+    <div class="btn-group" id="repMode">
+      <div class="btn active" data-val="no" onclick="selectBtn('repMode',this)">기장</div>
+      <div class="btn" data-val="yes" onclick="selectBtn('repMode',this)">신고대리</div>
+    </div>
+    <div style="font-size:0.75rem;color:#888;margin-top:8px;line-height:1.5">
+      ※ 신고대리: 기장 서비스 없이 종소세 신고만 대행하는 경우
+    </div>
+  </div>
+
   <!-- 업종 선택 -->
   <div class="card">
     <div class="card-title">업종 선택</div>
@@ -87,7 +106,7 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
     </div>
   </div>
 
-  <!-- 사업자/계약유형/신고대리 -->
+  <!-- 사업자 / 과세 / 계약 유형 -->
   <div class="card">
     <div class="card-title">사업자 유형</div>
     <div class="btn-group" id="entityType">
@@ -95,16 +114,19 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
       <div class="btn" data-val="corporate" onclick="selectBtn('entityType',this)">법인사업자</div>
     </div>
 
+    <div id="taxTypeSection" class="hidden">
+      <div class="card-title spaced">과세 유형</div>
+      <div class="btn-group" id="taxType">
+        <div class="btn" data-val="simplified" onclick="selectBtn('taxType',this)">간이</div>
+        <div class="btn" data-val="regular" onclick="selectBtn('taxType',this)">일반</div>
+        <div class="btn" data-val="sungsil" onclick="selectBtn('taxType',this)">성실</div>
+      </div>
+    </div>
+
     <div class="card-title spaced">계약 유형</div>
     <div class="btn-group" id="contractType">
       <div class="btn" data-val="new" onclick="selectBtn('contractType',this)">신규</div>
       <div class="btn" data-val="transfer" onclick="selectBtn('contractType',this)">이관</div>
-    </div>
-
-    <div class="card-title spaced">신고대리</div>
-    <div class="btn-group" id="repMode">
-      <div class="btn active" data-val="no" onclick="selectBtn('repMode',this)">신고대리 미포함</div>
-      <div class="btn" data-val="yes" onclick="selectBtn('repMode',this)">신고대리 포함</div>
     </div>
   </div>
 
@@ -118,42 +140,85 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
     </div>
   </div>
 
-  <!-- 구매대행 (전자상거래) -->
-  <div class="card hidden" id="purchaseAgencyCard">
-    <div class="card-title">구매대행 추가 사업장 (매출 구간별)</div>
-    <div class="tier-row">
-      <span class="tier-label">2억 이상 (90,000원/장)</span>
-      <input type="number" class="tier-input" id="pa-over2" min="0" step="1" placeholder="0">
+  <!-- 2부업체 (개인사업자 + 간편장부) -->
+  <div class="card collapsed hidden" id="secondaryBizCard">
+    <div class="card-toggle" onclick="toggleCard('secondaryBizCard')">
+      <span>2부업체 (추가 사업장 유형별 수)</span>
+      <span class="toggle-icon">▼</span>
     </div>
-    <div class="tier-row">
-      <span class="tier-label">1억 초과~2억 (70,000원/장)</span>
-      <input type="number" class="tier-input" id="pa-to2" min="0" step="1" placeholder="0">
-    </div>
-    <div class="tier-row">
-      <span class="tier-label">1억 이하 (50,000원/장)</span>
-      <input type="number" class="tier-input" id="pa-to1" min="0" step="1" placeholder="0">
-    </div>
-    <div class="tier-row">
-      <span class="tier-label">5천만원 이하 (30,000원/장)</span>
-      <input type="number" class="tier-input" id="pa-to05" min="0" step="1" placeholder="0">
-    </div>
-    <div class="tier-row">
-      <span class="tier-label">1,000만원 이하 (20,000원/장)</span>
-      <input type="number" class="tier-input" id="pa-to01" min="0" step="1" placeholder="0">
-    </div>
-    <div class="guide-card">
-      <div class="guide-title">구매대행 기장료 기준</div>
-      1개 사업자: 9만원<br>
-      2개 이상: 추가 사업장은 매출 구간별로 책정 (위 표 참조)
+    <div class="card-body">
+      <div class="tier-row">
+        <span class="tier-label">구매대행 (100,000원/장)</span>
+        <input type="number" class="tier-input" id="sb-purchase" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">오픈마켓 5개 이하 (150,000원/장)</span>
+        <input type="number" class="tier-input" id="sb-open5" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">오픈마켓 10개 이하 (200,000원/장)</span>
+        <input type="number" class="tier-input" id="sb-open10" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">오픈마켓 20개 이하 (250,000원/장)</span>
+        <input type="number" class="tier-input" id="sb-open20" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">쇼피 (150,000원/장)</span>
+        <input type="number" class="tier-input" id="sb-shopee" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">일반사업자 (100,000원/장)</span>
+        <input type="number" class="tier-input" id="sb-general" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">임대사업자 (50,000원/장)</span>
+        <input type="number" class="tier-input" id="sb-rental" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">무실적 (미청구)</span>
+        <input type="number" class="tier-input" id="sb-noop" min="0" step="1" placeholder="0">
+      </div>
+      <div class="guide-card">
+        <div class="guide-title">2부업체 기준 및 수수료</div>
+        복식부기가 아닌 사업자가 매출 1억 이하 사업장이 있는 경우 적용<br>
+        매출 1억 이상 사업장은 사업자별로 별도 기장료 책정
+      </div>
     </div>
   </div>
 
-  <!-- 과세유형 (개인) -->
-  <div class="card hidden" id="taxTypeCard">
-    <div class="card-title">과세 유형</div>
-    <div class="btn-group" id="taxType">
-      <div class="btn" data-val="simplified" onclick="selectBtn('taxType',this)">간이과세자</div>
-      <div class="btn" data-val="regular" onclick="selectBtn('taxType',this)">일반과세자</div>
+  <!-- 구매대행 (전자상거래) -->
+  <div class="card collapsed hidden" id="purchaseAgencyCard">
+    <div class="card-toggle" onclick="toggleCard('purchaseAgencyCard')">
+      <span>구매대행 추가 사업장 (매출 구간별)</span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="tier-row">
+        <span class="tier-label">2억 이상 (90,000원/장)</span>
+        <input type="number" class="tier-input" id="pa-over2" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">1억 초과~2억 (70,000원/장)</span>
+        <input type="number" class="tier-input" id="pa-to2" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">1억 이하 (50,000원/장)</span>
+        <input type="number" class="tier-input" id="pa-to1" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">5천만원 이하 (30,000원/장)</span>
+        <input type="number" class="tier-input" id="pa-to05" min="0" step="1" placeholder="0">
+      </div>
+      <div class="tier-row">
+        <span class="tier-label">1,000만원 이하 (20,000원/장)</span>
+        <input type="number" class="tier-input" id="pa-to01" min="0" step="1" placeholder="0">
+      </div>
+      <div class="guide-card">
+        <div class="guide-title">구매대행 기장료 기준</div>
+        1개 사업자: 9만원<br>
+        2개 이상: 추가 사업장은 매출 구간별로 책정 (위 표 참조)
+      </div>
     </div>
   </div>
 
@@ -261,6 +326,7 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
     <div id="resultContent" class="hidden">
       <div class="result-title">계산 결과</div>
 
+      <div id="bookkeepingResults">
       <div class="result-section">
         <div class="result-section-title">예상 기장료 (월, 만원)</div>
         <div class="result-grid">
@@ -297,6 +363,19 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
             <span class="result-single-value" id="paTotal">90,000원</span>
           </div>
           <div class="retro-detail" id="paDetail"></div>
+        </div>
+      </div>
+
+      <!-- 2부업체 (개인) -->
+      <div id="sbResultSection" class="hidden">
+        <div class="divider"></div>
+        <div class="result-section">
+          <div class="result-section-title">2부업체 추가 수수료 (월)</div>
+          <div id="sbBreakdown"></div>
+          <div class="result-single" style="background:rgba(255,255,255,0.22)">
+            <span class="result-single-label" style="font-weight:600">2부업체 합계</span>
+            <span class="result-single-value" id="sbTotal">0원</span>
+          </div>
         </div>
       </div>
 
@@ -346,10 +425,11 @@ h1{text-align:center;font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-botto
         </div>
         <div class="retro-detail" id="retroDetail"></div>
       </div>
+      </div><!-- /bookkeepingResults -->
 
       <!-- 신고대리 -->
       <div id="repResultSection" class="hidden">
-        <div class="divider"></div>
+        <div class="divider" id="repDivider"></div>
         <div class="result-section">
           <div class="result-section-title">종소세 신고대리 수수료 (VAT 별도)</div>
           <div id="repBreakdown"></div>
@@ -391,10 +471,17 @@ function toggleOption(input) {
   label.classList.toggle('checked', input.checked);
 }
 
+function toggleCard(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
 function updateVisibility() {
   document.getElementById('platformCard').classList.toggle('hidden', state.bizType !== 'ecommerce');
   document.getElementById('purchaseAgencyCard').classList.toggle('hidden', state.bizType !== 'ecommerce');
-  document.getElementById('taxTypeCard').classList.toggle('hidden', state.entityType !== 'individual');
+  document.getElementById('taxTypeSection').classList.toggle('hidden', state.entityType !== 'individual');
+  // 2부업체: 개인사업자 + 복식부기 아닌 경우(간이/일반)에만 표시 (성실=복식부기는 제외)
+  const showSecondaryBiz = state.entityType === 'individual' && state.taxType && state.taxType !== 'sungsil';
+  document.getElementById('secondaryBizCard').classList.toggle('hidden', !showSecondaryBiz);
   document.getElementById('investRow').classList.toggle('hidden', state.bizType !== 'startup');
   document.getElementById('bankRow').classList.toggle('hidden', state.bizType !== 'startup');
   document.getElementById('repOptionsCard').classList.toggle('hidden', state.repMode !== 'yes');
@@ -422,39 +509,64 @@ const corpFeeTable = [
   { max: 300, b: 200, q: 250, m: 300 },
 ];
 
-const indivHighTable = [
-  { max: 15,  b: 10,  q: 20,  m: 30, exclusive: true },
-  { max: 20,  b: 25,  q: 35,  m: 50 },
-  { max: 30,  b: 30,  q: 40,  m: 60 },
-  { max: 50,  b: 40,  q: 60,  m: 80 },
-  { max: 80,  b: 50,  q: 80,  m: 100 },
-  { max: 100, b: 70,  q: 100, m: 120 },
-  { max: 150, b: 100, q: 130, m: 150 },
-  { max: 200, b: 130, q: 160, m: 200 },
+// 개인 매출구간 표 (3억 초과 ~ 200억): rev > min && rev <= max
+const indivTable = [
+  { min: 3,   max: 5,   b: 10,  q: 15,   m: 25 },   // 3~5억 (직원 있는 경우 기준)
+  { min: 5,   max: 7,   b: 10,  q: '-',  m: '-' },  // 5~7억
+  { min: 7,   max: 10,  b: 12,  q: '-',  m: '-' },  // 7~10억
+  { min: 10,  max: 15,  b: 15,  q: 20,   m: 30 },   // 10~15억
+  { min: 15,  max: 20,  b: 25,  q: 35,   m: 50 },   // 15~20억
+  { min: 20,  max: 30,  b: 30,  q: 40,   m: 60 },   // 20~30억
+  { min: 30,  max: 50,  b: 40,  q: 60,   m: 80 },   // 30~50억
+  { min: 50,  max: 80,  b: 50,  q: 80,   m: 100 },  // 50~80억
+  { min: 80,  max: 100, b: 70,  q: 100,  m: 120 },  // 80~100억
+  { min: 100, max: 150, b: 100, q: 130,  m: 150 },  // 100~150억
+  { min: 150, max: 200, b: 130, q: 160,  m: 200 },  // 150~200억
 ];
 
 function getCorpFee(rev) {
   for (const t of corpFeeTable) {
     if (rev <= t.max) return { b: t.b, q: t.q, m: t.m };
   }
-  return { b: '별도문의', q: '별도문의', m: '별도문의' };
+  // 300억 초과: 마지막 구간 적용
+  const last = corpFeeTable[corpFeeTable.length - 1];
+  return { b: last.b, q: last.q, m: last.m };
 }
 
 function getIndivFee(rev, taxType, employees) {
   const emp = parseInt(employees) || 0;
-  if (rev <= 10) {
-    if (taxType === 'simplified') return { b: 8, q: '-', m: 20 };
-    if (emp > 0) return { b: 10, q: 15, m: 25 };
-    return { b: 9, q: 12, m: 20 };
+  let result;
+
+  if (rev <= 3) {
+    // 3억 이하: 과세 유형/직원 수에 따라
+    if (taxType === 'simplified')      result = { b: 8,  q: '-', m: 20 };
+    else if (taxType === 'sungsil')    result = { b: 25, q: 30,  m: 40 };
+    else if (emp > 0)                  result = { b: 10, q: 15,  m: 25 };
+    else                               result = { b: 9,  q: 12,  m: 20 };
+  } else {
+    // 3억 초과: 매출구간 표 적용
+    let matched = null;
+    for (const t of indivTable) {
+      if (rev > t.min && rev <= t.max) { matched = t; break; }
+    }
+    if (matched) {
+      result = { b: matched.b, q: matched.q, m: matched.m };
+    } else {
+      // 200억 초과: 마지막 구간 적용
+      const last = indivTable[indivTable.length - 1];
+      result = { b: last.b, q: last.q, m: last.m };
+    }
+    // 성실신고는 표 값보다 작아지지 않게 하한 25만원 적용
+    if (taxType === 'sungsil' && typeof result.b === 'number' && result.b < 25) {
+      result = { b: 25, q: 30, m: 40 };
+    }
   }
-  for (const t of indivHighTable) {
-    if (t.exclusive ? rev < t.max : rev <= t.max) return { b: t.b, q: t.q, m: t.m };
-  }
-  return { b: '별도문의', q: '별도문의', m: '별도문의' };
+  return result;
 }
 
-function checkSungsil(rev, entityType) {
-  return entityType === 'individual' && rev >= 5 && rev < 10;
+function checkSungsil(rev, taxType) {
+  // 성실 기본 기장료는 getIndivFee에서 직접 처리하므로 별도 오버라이드 불필요
+  return false;
 }
 
 // ====================================================
@@ -488,6 +600,36 @@ function calcPurchaseAgency() {
     }
   }
   return { base: PA_BASE, addCount, addFee, total: PA_BASE + addFee, detail: detail.join('<br>') };
+}
+
+// ====================================================
+// 2부업체 (개인 간편장부 추가 사업장)
+// ====================================================
+const SB_TABLE = {
+  purchase: { fee: 100000, label: '구매대행' },
+  open5:    { fee: 150000, label: '오픈마켓 5개 이하' },
+  open10:   { fee: 200000, label: '오픈마켓 10개 이하' },
+  open20:   { fee: 250000, label: '오픈마켓 20개 이하' },
+  shopee:   { fee: 150000, label: '쇼피' },
+  general:  { fee: 100000, label: '일반사업자' },
+  rental:   { fee:  50000, label: '임대사업자' },
+  noop:     { fee:      0, label: '무실적 (미청구)' },
+};
+
+function calcSecondaryBiz() {
+  const breakdown = [];
+  let total = 0, totalCount = 0;
+  for (const k of Object.keys(SB_TABLE)) {
+    const count = parseInt(document.getElementById('sb-' + k).value) || 0;
+    if (count > 0) {
+      const t = SB_TABLE[k];
+      const fee = count * t.fee;
+      total += fee;
+      totalCount += count;
+      breakdown.push({ label: `${t.label} ${count}장`, value: fee });
+    }
+  }
+  return { breakdown, total, totalCount };
 }
 
 // ====================================================
@@ -589,15 +731,25 @@ function calcRepFee(revenue, retroFeeWon) {
 // 메인 계산
 // ====================================================
 function calc() {
+  const isRepOnly = state.repMode === 'yes';
+
   // 필수 선택 검증
   if (!state.bizType) { alert('업종을 선택해주세요.'); return; }
   if (!state.entityType) { alert('사업자 유형을 선택해주세요.'); return; }
-  if (!state.contractType) { alert('계약 유형을 선택해주세요.'); return; }
   if (state.entityType === 'individual' && !state.taxType) { alert('과세 유형을 선택해주세요.'); return; }
   if (state.bizType === 'ecommerce' && !state.platformType) { alert('플랫폼 유형을 선택해주세요.'); return; }
+  if (!isRepOnly && !state.contractType) { alert('계약 유형을 선택해주세요.'); return; }
+
+  if (isRepOnly) {
+    if (!state.repIncomeType) { alert('신고대리 유형을 선택해주세요.'); return; }
+    if (state.repIncomeType !== 'double' && !state.repBookType) { alert('장부 유형(단순경비율/간편장부)을 선택해주세요.'); return; }
+  }
 
   document.getElementById('placeholderMsg').classList.add('hidden');
   document.getElementById('resultContent').classList.remove('hidden');
+
+  // 신고대리 모드면 기장 결과 영역 숨김
+  document.getElementById('bookkeepingResults').classList.toggle('hidden', isRepOnly);
 
   const rev = parseFloat(document.getElementById('revenue').value) || 0;
   const invest = parseFloat(document.getElementById('investment').value) || 0;
@@ -614,7 +766,7 @@ function calc() {
     fee = getCorpFee(rev);
   } else {
     fee = getIndivFee(rev, state.taxType, emp);
-    if (checkSungsil(rev, state.entityType)) fee = { ...fee, b: 15 };
+    if (checkSungsil(rev, state.taxType)) fee = { ...fee, b: 15 };
   }
   const fmt = v => (typeof v === 'number') ? v + '만원' : v;
   document.getElementById('feeBasic').textContent = fmt(fee.b);
@@ -634,6 +786,29 @@ function calc() {
     paSection.classList.add('hidden');
   }
 
+  // 2부업체 (개인사업자 + 간편장부 = 간이/일반)
+  const sbSection = document.getElementById('sbResultSection');
+  const showSb = !isCorp && state.taxType && state.taxType !== 'sungsil';
+  if (showSb) {
+    const sb = calcSecondaryBiz();
+    if (sb.totalCount > 0) {
+      sbSection.classList.remove('hidden');
+      let sbHtml = '';
+      for (const item of sb.breakdown) {
+        sbHtml += `<div class="result-single">
+          <span class="result-single-label">${item.label}</span>
+          <span class="result-single-value">${item.value > 0 ? '+' + item.value.toLocaleString() + '원' : '미청구'}</span>
+        </div>`;
+      }
+      document.getElementById('sbBreakdown').innerHTML = sbHtml;
+      document.getElementById('sbTotal').textContent = sb.total.toLocaleString() + '원';
+    } else {
+      sbSection.classList.add('hidden');
+    }
+  } else {
+    sbSection.classList.add('hidden');
+  }
+
   // 조정료
   const adjSingleRow = document.getElementById('adjSingleRow');
   const adjStartupArea = document.getElementById('adjStartupArea');
@@ -648,7 +823,7 @@ function calc() {
     document.getElementById('adjInvest').textContent = formatWon(adjInv);
 
     let sungsilAdd = 0;
-    if (!isCorp && rev >= 15) { adjSungsilRow.classList.remove('hidden'); sungsilAdd = 2000000; }
+    if (!isCorp && state.taxType === 'sungsil') { adjSungsilRow.classList.remove('hidden'); sungsilAdd = 2000000; }
     else adjSungsilRow.classList.add('hidden');
 
     const mainAmount = Math.max(rev, invest);
@@ -662,18 +837,20 @@ function calc() {
     document.getElementById('adjFee').textContent = formatWon(adjAmount);
 
     let sungsilAdd = 0;
-    if (!isCorp && rev >= 15) { adjSungsilRow.classList.remove('hidden'); sungsilAdd = 2000000; }
+    if (!isCorp && state.taxType === 'sungsil') { adjSungsilRow.classList.remove('hidden'); sungsilAdd = 2000000; }
     else adjSungsilRow.classList.add('hidden');
 
     const totalAdj = adjAmount !== null ? adjAmount + sungsilAdd : null;
     document.getElementById('adjTotal').textContent = formatWon(totalAdj);
   }
 
-  // 소급기장료
+  // 소급기장료 (신고대리 복식부기에서도 내부 계산용으로 사용)
   const retroDetail = document.getElementById('retroDetail');
   let retroTotal = 0;
+  // 신고대리 모드에서는 신규 가정으로 소급기장료 계산값을 산출 (복식부기 신고대리 기준)
+  const computeRetro = isNew || isRepOnly;
 
-  if (!isNew) {
+  if (!computeRetro) {
     document.getElementById('retroFee').textContent = '해당없음';
     document.getElementById('retroFeeVat').textContent = '-';
     retroDetail.textContent = '이관의 경우 소급기장료가 발생하지 않습니다.';
@@ -700,6 +877,7 @@ function calc() {
 
   // 신고대리
   const repSection = document.getElementById('repResultSection');
+  document.getElementById('repDivider').classList.toggle('hidden', isRepOnly);
   if (state.repMode === 'yes') {
     repSection.classList.remove('hidden');
     const rep = calcRepFee(rev, retroTotal);
