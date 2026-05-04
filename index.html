@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>수수료 계산기 (상담용) - 세무법인 엑스퍼트 강남</title>
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-light: #3B82F6;
+      --bg: #F1F3F8;
+      --card-bg: #FFFFFF;
+      --border: #E5E7EB;
+      --text: #1F2937;
+      --text-light: #6B7280;
+      --text-muted: #9CA3AF;
+      --success: #10B981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Pretendard", "Malgun Gothic", "맑은 고딕", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 32px 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--text-light);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .card-label.spaced {
+      margin-top: 18px;
+    }
+
+    .btn-group {
+      display: grid;
+      gap: 8px;
+    }
+    .btn-group.cols-2 { grid-template-columns: 1fr 1fr; }
+    .btn-group.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    .opt-btn {
+      padding: 14px 12px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text-light);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .opt-btn:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+    .opt-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .input-row:last-child { margin-bottom: 0; }
+    .input-row label {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    .input-row input,
+    .input-row select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text);
+      background: #FFFFFF;
+      font-family: inherit;
+    }
+    .input-row input:focus,
+    .input-row select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .input-row .unit {
+      color: var(--text-light);
+      font-size: 14px;
+    }
+
+    /* 결과 카드 */
+    .result-card {
+      background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+      color: #FFFFFF;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .result-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .result-section { margin-top: 18px; }
+    .result-section:first-of-type { margin-top: 0; }
+
+    .result-section-label {
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0.85;
+      margin-bottom: 10px;
+    }
+
+    .fee-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .fee-card {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 14px 10px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .fee-card .label {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+
+    .fee-card .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .fee-card .value.muted {
+      opacity: 0.5;
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.10);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .fee-row:last-child { margin-bottom: 0; }
+    .fee-row .right { font-weight: 700; }
+    .fee-row.total {
+      background: rgba(255, 255, 255, 0.20);
+      font-weight: 600;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 18px 0;
+    }
+
+    .formula {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-top: 8px;
+      padding-left: 4px;
+      line-height: 1.6;
+    }
+
+    .hidden { display: none !important; }
+
+    .footnote {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding-left: 4px;
+    }
+
+    /* 모바일 */
+    @media (max-width: 480px) {
+      body { padding: 16px 8px; }
+      .card { padding: 18px 16px; }
+      .input-row { grid-template-columns: 60px 1fr auto; gap: 8px; }
+      .fee-card .value { font-size: 16px; }
+      .btn-group.cols-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>수수료 계산기 (상담용)</h1>
+      <p>세무법인 엑스퍼트 강남</p>
+    </header>
+
+    <!-- 1. 업종 선택 -->
+    <div class="card">
+      <span class="card-label">업종 선택</span>
+      <div class="btn-group cols-3" data-group="industry">
+        <button type="button" class="opt-btn" data-value="startup">스타트업</button>
+        <button type="button" class="opt-btn" data-value="ecommerce">전자상거래</button>
+        <button type="button" class="opt-btn active" data-value="general">일반</button>
+      </div>
+    </div>
+
+    <!-- 2. 사업자 유형 + 계약 유형 -->
+    <div class="card">
+      <span class="card-label">사업자 유형</span>
+      <div class="btn-group cols-2" data-group="bizType">
+        <button type="button" class="opt-btn active" data-value="individual">개인사업자</button>
+        <button type="button" class="opt-btn" data-value="corp">법인사업자</button>
+      </div>
+
+      <span class="card-label spaced">계약 유형</span>
+      <div class="btn-group cols-2" data-group="contractType">
+        <button type="button" class="opt-btn active" data-value="new">신규</button>
+        <button type="button" class="opt-btn" data-value="transfer">이관</button>
+      </div>
+    </div>
+
+    <!-- 3. 과세 유형 (개인사업자만) -->
+    <div class="card" id="card-tax">
+      <span class="card-label">과세 유형</span>
+      <div class="btn-group cols-3" data-group="taxType">
+        <button type="button" class="opt-btn" data-value="simple">간이과세자</button>
+        <button type="button" class="opt-btn active" data-value="general">일반과세자</button>
+        <button type="button" class="opt-btn" data-value="diligent">성실신고</button>
+      </div>
+    </div>
+
+    <!-- 4. 전자상거래 플랫폼 (전자상거래일 때만) -->
+    <div class="card hidden" id="card-platform">
+      <span class="card-label">플랫폼 유형</span>
+      <div class="btn-group cols-3" data-group="platform">
+        <button type="button" class="opt-btn active" data-value="domestic">국내플랫폼</button>
+        <button type="button" class="opt-btn" data-value="overseas">해외플랫폼</button>
+        <button type="button" class="opt-btn" data-value="both">국내+해외</button>
+      </div>
+    </div>
+
+    <!-- 5. 2부업체 -->
+    <div class="card">
+      <span class="card-label">2부업체 여부</span>
+      <div class="btn-group cols-2" data-group="hasSecondary">
+        <button type="button" class="opt-btn active" data-value="no">없음</button>
+        <button type="button" class="opt-btn" data-value="yes">있음</button>
+      </div>
+
+      <div id="secondary-detail" class="hidden">
+        <span class="card-label spaced">2부업체 유형</span>
+        <div class="input-row">
+          <label>유형</label>
+          <select id="secondary-type">
+            <option value="purchase_agency">구매대행 (10만원)</option>
+            <option value="openmarket_5">오픈마켓 5개 이하 (15만원)</option>
+            <option value="openmarket_10">오픈마켓 10개 이하 (20만원)</option>
+            <option value="openmarket_20">오픈마켓 20개 이상 (25만원)</option>
+            <option value="shopee">쇼피 (15만원)</option>
+            <option value="general_biz">일반사업자 (10만원)</option>
+            <option value="rental">임대사업자 (5만원)</option>
+            <option value="no_revenue">무실적 (미청구)</option>
+          </select>
+          <span></span>
+        </div>
+        <p class="footnote">※ 복식부기가 아닌 사업자가 매출 1억 이하 사업장이 있는 경우. 매출 1억 이상 사업장은 사업자별로 별도 기장료 책정.</p>
+      </div>
+    </div>
+
+    <!-- 6. 상세 정보 -->
+    <div class="card">
+      <span class="card-label">상세 정보</span>
+      <div class="input-row">
+        <label>연매출</label>
+        <input type="number" id="revenue" min="0" step="0.1" value="0" placeholder="0" />
+        <span class="unit">억</span>
+      </div>
+      <div class="input-row">
+        <label>직원수</label>
+        <input type="number" id="employees" min="0" step="1" value="0" placeholder="0" />
+        <span class="unit">명</span>
+      </div>
+      <div class="input-row">
+        <label>계약월</label>
+        <select id="contract-month">
+          <option value="1">1월</option>
+          <option value="2">2월</option>
+          <option value="3">3월</option>
+          <option value="4">4월</option>
+          <option value="5">5월</option>
+          <option value="6">6월</option>
+          <option value="7">7월</option>
+          <option value="8">8월</option>
+          <option value="9">9월</option>
+          <option value="10">10월</option>
+          <option value="11">11월</option>
+          <option value="12">12월</option>
+        </select>
+        <span></span>
+      </div>
+      <div class="input-row" id="row-vat">
+        <label>부가세 신고</label>
+        <div class="btn-group cols-2" data-group="vatStatus" style="width: 100%;">
+          <button type="button" class="opt-btn active" data-value="before">신고전</button>
+          <button type="button" class="opt-btn" data-value="after">신고후</button>
+        </div>
+        <span></span>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div class="result-card">
+      <h2>계산 결과</h2>
+
+      <div class="result-section">
+        <div class="result-section-label">예상 기장료 (월, 만원)</div>
+        <div class="fee-grid">
+          <div class="fee-card">
+            <div class="label">기본</div>
+            <div class="value" id="fee-base">9만원</div>
+          </div>
+          <div class="fee-card">
+            <div class="label">분기결산</div>
+            <div class="value" id="fee-quarter">12만원</div>
+          </div>
+          <div class="fee-card">
+            <div class="label">월결산</div>
+            <div class="value" id="fee-monthly">20만원</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-section-label">예상 조정료 (연, VAT 별도)</div>
+        <div class="fee-row">
+          <span>세무조정 보수</span>
+          <span class="right" id="fee-adjustment">300,000원</span>
+        </div>
+        <div class="fee-row total">
+          <span>조정료 합계</span>
+          <span class="right" id="fee-adjustment-total">300,000원</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section" id="section-secondary">
+        <div class="result-section-label">2부업체 추가 수수료 (월)</div>
+        <div class="fee-row">
+          <span id="secondary-label">2부업체</span>
+          <span class="right" id="fee-secondary">0원</span>
+        </div>
+      </div>
+
+      <div class="divider" id="divider-secondary"></div>
+
+      <div class="result-section" id="section-soguk">
+        <div class="result-section-label">소급기장료 (신규 계약만 해당)</div>
+        <div class="fee-row">
+          <span>소급기장료</span>
+          <span class="right" id="fee-soguk">0원</span>
+        </div>
+        <div class="fee-row total">
+          <span>VAT 포함</span>
+          <span class="right" id="fee-soguk-vat">0원</span>
+        </div>
+        <div class="formula" id="soguk-formula"></div>
+      </div>
+
+      <div class="divider" id="divider-jongso"></div>
+
+      <div class="result-section" id="section-jongso">
+        <div class="result-section-label">종소세 신고대행 수수료 (예상, VAT 별도)</div>
+        <div class="fee-row">
+          <span>종소세 신고대행</span>
+          <span class="right" id="fee-jongso">0원</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-section">
+        <div class="result-section-label">용역수수료 (참고)</div>
+        <div class="fee-row">
+          <span>용역수수료 (건당, 별도 산정)</span>
+          <span class="right" id="fee-service">별도 협의</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // 가격표 데이터
+    // ============================================
+
+    // [법인] 스타트업·전자상거래·일반 공통 (만원/월)
+    // 매출 5억이하 / 5~15 / 15~20 / 20~30 / 30~50 / 50~80 / 80~100 / 100~150 / 150~200 / 200~250 / 250~300
+    const CORP_TABLE = [
+      { max: 5,   base: 15, quarter: 25, monthly: 30 },
+      { max: 15,  base: 20, quarter: 30, monthly: 40 },
+      { max: 20,  base: 25, quarter: 35, monthly: 50 },
+      { max: 30,  base: 30, quarter: 40, monthly: 60 },
+      { max: 50,  base: 40, quarter: 60, monthly: 80 },
+      { max: 80,  base: 50, quarter: 80, monthly: 100 },
+      { max: 100, base: 70, quarter: 100, monthly: 120 },
+      { max: 150, base: 100, quarter: 130, monthly: 150 },
+      { max: 200, base: 130, quarter: 160, monthly: 200 },
+      { max: 250, base: 150, quarter: 180, monthly: 250 },
+      { max: 300, base: 200, quarter: 250, monthly: 300 },
+      // 300억 초과는 별도 협의
+      { max: Infinity, base: 200, quarter: 250, monthly: 300 },
+    ];
+
+    // [개인] 일반업종/전자상거래/스타트업 공통 (만원/월)
+    // 3억 이하는 별도 분기 (간이/일반/직원), 그 외 매출구간으로 책정
+    const INDIVIDUAL_TABLE = [
+      // 5~7억, 7~10억은 분기/월결산이 별도 표시 안 됨 (NULL 처리)
+      { min: 5,   max: 7,   base: 10, quarter: null, monthly: null },
+      { min: 7,   max: 10,  base: 12, quarter: null, monthly: null },
+      { min: 10,  max: 15,  base: 15, quarter: 20,   monthly: 30 },
+      { min: 15,  max: 20,  base: 25, quarter: 35,   monthly: 50 },
+      { min: 20,  max: 30,  base: 30, quarter: 40,   monthly: 60 },
+      { min: 30,  max: 50,  base: 40, quarter: 60,   monthly: 80 },
+      { min: 50,  max: 80,  base: 50, quarter: 80,   monthly: 100 },
+      { min: 80,  max: 100, base: 70, quarter: 100,  monthly: 120 },
+      { min: 100, max: 150, base: 100, quarter: 130, monthly: 150 },
+      { min: 150, max: 200, base: 130, quarter: 160, monthly: 200 },
+      // 200억 초과는 별도 협의
+      { min: 200, max: Infinity, base: 130, quarter: 160, monthly: 200 },
+    ];
+
+    // 2부업체 추가 수수료 (원/월)
+    const SECONDARY_FEES = {
+      purchase_agency: { amount: 100000, label: "구매대행" },
+      openmarket_5:    { amount: 150000, label: "오픈마켓 5개 이하" },
+      openmarket_10:   { amount: 200000, label: "오픈마켓 10개 이하" },
+      openmarket_20:   { amount: 250000, label: "오픈마켓 20개 이상" },
+      shopee:          { amount: 150000, label: "쇼피" },
+      general_biz:     { amount: 100000, label: "일반사업자" },
+      rental:          { amount:  50000, label: "임대사업자" },
+      no_revenue:      { amount:      0, label: "무실적 (미청구)" },
+    };
+
+    // 소급기장료 비율
+    const SOGUK_RATES = {
+      simple: { before: 0.6, after: 0.4 },  // 간편장부
+      double: { before: 0.8, after: 0.6 },  // 복식부기
+    };
+
+    // ============================================
+    // 상태 관리
+    // ============================================
+    const state = {
+      industry: "general",      // startup | ecommerce | general
+      bizType: "individual",    // individual | corp
+      contractType: "new",      // new | transfer
+      taxType: "general",       // simple | general | diligent
+      platform: "domestic",     // domestic | overseas | both
+      hasSecondary: "no",       // yes | no
+      vatStatus: "before",      // before | after
+    };
+
+    // ============================================
+    // 버튼 그룹 핸들링
+    // ============================================
+    document.querySelectorAll(".btn-group").forEach((group) => {
+      const groupName = group.dataset.group;
+      group.querySelectorAll(".opt-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          group.querySelectorAll(".opt-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          state[groupName] = btn.dataset.value;
+          onStateChange();
+        });
+      });
+    });
+
+    document.getElementById("revenue").addEventListener("input", calculate);
+    document.getElementById("employees").addEventListener("input", calculate);
+    document.getElementById("contract-month").addEventListener("change", calculate);
+    document.getElementById("secondary-type").addEventListener("change", calculate);
+
+    function onStateChange() {
+      // 카드 표시/숨김
+      document.getElementById("card-tax").classList.toggle("hidden", state.bizType !== "individual");
+      document.getElementById("card-platform").classList.toggle("hidden", state.industry !== "ecommerce");
+      document.getElementById("secondary-detail").classList.toggle("hidden", state.hasSecondary !== "yes");
+
+      // 신규 계약일 때만 부가세 신고 상태 입력 (소급기장료용)
+      document.getElementById("row-vat").classList.toggle("hidden", state.contractType !== "new");
+
+      // 종소세 신고대행은 개인사업자만
+      const showJongso = state.bizType === "individual";
+      document.getElementById("section-jongso").classList.toggle("hidden", !showJongso);
+      document.getElementById("divider-jongso").classList.toggle("hidden", !showJongso);
+
+      // 2부업체 결과 표시
+      const showSecondary = state.hasSecondary === "yes";
+      document.getElementById("section-secondary").classList.toggle("hidden", !showSecondary);
+      document.getElementById("divider-secondary").classList.toggle("hidden", !showSecondary);
+
+      // 소급기장료는 신규일 때만
+      const showSoguk = state.contractType === "new";
+      document.getElementById("section-soguk").classList.toggle("hidden", !showSoguk);
+
+      calculate();
+    }
+
+    // ============================================
+    // 기장료 계산
+    // ============================================
+    function calculateBookkeeping(revenue, employees) {
+      // 법인사업자
+      if (state.bizType === "corp") {
+        const tier = CORP_TABLE.find((t) => revenue <= t.max);
+        return { base: tier.base, quarter: tier.quarter, monthly: tier.monthly };
+      }
+
+      // 개인사업자
+      // 3억 이하: 과세유형/직원수에 따라
+      if (revenue <= 3) {
+        if (state.taxType === "simple") {
+          // 간이과세자
+          return { base: 8, quarter: null, monthly: 20 };
+        }
+        if (state.taxType === "diligent") {
+          // 성실신고 (3억 이하인데 성실: 보통 안 나오지만 안전하게)
+          // 10억 미만 + 성실 = 15만원
+          return { base: 15, quarter: 20, monthly: 30 };
+        }
+        // 일반과세자: 직원수에 따라
+        if (employees > 0) {
+          return { base: 10, quarter: 15, monthly: 25 };
+        }
+        return { base: 9, quarter: 12, monthly: 20 };
+      }
+
+      // 3억 초과 ~ 5억 미만: 직원있는 경우 표 적용 (안전한 가정)
+      if (revenue < 5) {
+        return { base: 10, quarter: 15, monthly: 25 };
+      }
+
+      // 5억 이상: 매출구간 표 적용
+      const tier = INDIVIDUAL_TABLE.find((t) => revenue >= t.min && revenue < t.max) || INDIVIDUAL_TABLE[INDIVIDUAL_TABLE.length - 1];
+      let result = { base: tier.base, quarter: tier.quarter, monthly: tier.monthly };
+
+      // 10억 미만이고 성실신고면 15만원
+      if (revenue < 10 && state.taxType === "diligent") {
+        result.base = Math.max(result.base, 15);
+      }
+
+      return result;
+    }
+
+    // ============================================
+    // 조정료 계산 (기본 공식 - 추후 수정)
+    // ============================================
+    function calculateAdjustment(revenue, base) {
+      // 기본 공식: 매출 구간별 정액 + 매출에 따른 가산
+      // 추후 정확한 가격표가 있으면 수정 필요
+      let amount;
+      if (revenue < 3) amount = 300000;
+      else if (revenue < 5) amount = 400000;
+      else if (revenue < 10) amount = 500000;
+      else if (revenue < 20) amount = 700000;
+      else if (revenue < 50) amount = 1000000;
+      else if (revenue < 100) amount = 1500000;
+      else if (revenue < 200) amount = 2500000;
+      else amount = 3500000;
+
+      // 법인은 일반적으로 더 높음
+      if (state.bizType === "corp") amount = Math.round(amount * 1.3);
+
+      return amount;
+    }
+
+    // ============================================
+    // 종소세 신고대행 (개인사업자만)
+    // ============================================
+    function calculateJongso(revenue, adjustment) {
+      // 기본 공식: 조정료의 50% (추후 수정)
+      if (state.bizType !== "individual") return 0;
+      return Math.round(adjustment * 0.5);
+    }
+
+    // ============================================
+    // 소급기장료
+    // ============================================
+    function calculateSoguk(base, contractMonth, revenue) {
+      // 복식부기 vs 간편장부 판단
+      // - 법인: 항상 복식부기
+      // - 개인 성실신고: 복식부기
+      // - 개인 일반과세자 + 매출 일정 이상: 복식부기
+      //   (도소매 3억, 서비스 1.5억, 부동산임대 7,500만 기준이지만
+      //    안전하게 매출 3억 이상이면 복식부기로 가정)
+      let isDouble = false;
+      if (state.bizType === "corp") isDouble = true;
+      else if (state.taxType === "diligent") isDouble = true;
+      else if (state.taxType === "general" && revenue >= 3) isDouble = true;
+
+      const rateType = isDouble ? "double" : "simple";
+      const rate = SOGUK_RATES[rateType][state.vatStatus];
+
+      // 소급 개월수: 부가세 신고 일정 기준
+      // 개인사업자(일반과세자) 부가세 신고: 1기(7월), 2기(다음해 1월)
+      // 법인사업자 부가세 신고: 4월/7월/10월/1월 (분기)
+      // - 신고전: 직전 신고월 ~ 계약월 직전까지의 개월수
+      // - 신고후: 직전 신고월 + 1 ~ 계약월 직전까지의 개월수
+      // 단순화: 계약월 - 1 (1월 계약은 1개월로 처리, 회계연도 기준)
+
+      let months;
+      if (state.bizType === "individual") {
+        // 개인은 반기별 부가세 신고
+        if (contractMonth >= 1 && contractMonth <= 6) {
+          // 상반기 계약: 전년도 7~12월(2기) 소급
+          // 신고전(1월 25일 이전): 6개월 + 계약월까지
+          // 신고후: 계약월의 1~ 까지
+          months = state.vatStatus === "before" ? contractMonth : (contractMonth - 1);
+          if (months < 1) months = 1;
+        } else {
+          // 하반기 계약: 7~12월
+          // 신고전(7월 25일 이전 가정): 1~계약월
+          // 신고후: 7월 ~ 계약월
+          months = state.vatStatus === "before" ? contractMonth : (contractMonth - 6);
+          if (months < 1) months = 1;
+        }
+      } else {
+        // 법인: 분기 부가세 신고
+        const quarterStart = Math.floor((contractMonth - 1) / 3) * 3 + 1;
+        months = state.vatStatus === "before" ? (contractMonth - quarterStart + 1) : 1;
+        if (months < 1) months = 1;
+      }
+
+      const baseWon = base * 10000;
+      const amount = Math.round(baseWon * months * rate);
+      const formula = `${base}만원 × ${months}개월 × ${Math.round(rate * 100)}% = ${amount.toLocaleString()}원`;
+
+      return { amount, vat: Math.round(amount * 1.1), formula };
+    }
+
+    // ============================================
+    // 2부업체 수수료
+    // ============================================
+    function calculateSecondary() {
+      if (state.hasSecondary !== "yes") return { amount: 0, label: "없음" };
+      const type = document.getElementById("secondary-type").value;
+      const fee = SECONDARY_FEES[type];
+      return { amount: fee.amount, label: fee.label };
+    }
+
+    // ============================================
+    // 메인 계산
+    // ============================================
+    function calculate() {
+      const revenue = parseFloat(document.getElementById("revenue").value) || 0;
+      const employees = parseInt(document.getElementById("employees").value) || 0;
+      const contractMonth = parseInt(document.getElementById("contract-month").value) || 1;
+
+      // 1. 기장료
+      const bk = calculateBookkeeping(revenue, employees);
+
+      // 전자상거래 가산 (해외플랫폼/국내+해외)
+      let multiplier = 1;
+      if (state.industry === "ecommerce") {
+        if (state.platform === "overseas") multiplier = 1.2;       // 해외플랫폼 +20% (가정)
+        else if (state.platform === "both") multiplier = 1.3;      // 국내+해외 +30% (가정)
+      }
+      bk.base = Math.round(bk.base * multiplier);
+      if (bk.quarter) bk.quarter = Math.round(bk.quarter * multiplier);
+      if (bk.monthly) bk.monthly = Math.round(bk.monthly * multiplier);
+
+      document.getElementById("fee-base").textContent = bk.base + "만원";
+      document.getElementById("fee-quarter").textContent = bk.quarter ? bk.quarter + "만원" : "-";
+      document.getElementById("fee-quarter").classList.toggle("muted", !bk.quarter);
+      document.getElementById("fee-monthly").textContent = bk.monthly ? bk.monthly + "만원" : "-";
+      document.getElementById("fee-monthly").classList.toggle("muted", !bk.monthly);
+
+      // 2. 조정료
+      const adjustment = calculateAdjustment(revenue, bk.base);
+      document.getElementById("fee-adjustment").textContent = adjustment.toLocaleString() + "원";
+      document.getElementById("fee-adjustment-total").textContent = adjustment.toLocaleString() + "원";
+
+      // 3. 2부업체
+      const secondary = calculateSecondary();
+      document.getElementById("secondary-label").textContent = secondary.label;
+      document.getElementById("fee-secondary").textContent = secondary.amount.toLocaleString() + "원";
+
+      // 4. 소급기장료 (신규만)
+      if (state.contractType === "new") {
+        const soguk = calculateSoguk(bk.base, contractMonth, revenue);
+        document.getElementById("fee-soguk").textContent = soguk.amount.toLocaleString() + "원";
+        document.getElementById("fee-soguk-vat").textContent = soguk.vat.toLocaleString() + "원";
+        document.getElementById("soguk-formula").textContent = soguk.formula;
+      }
+
+      // 5. 종소세 신고대행 (개인만)
+      if (state.bizType === "individual") {
+        const jongso = calculateJongso(revenue, adjustment);
+        document.getElementById("fee-jongso").textContent = jongso.toLocaleString() + "원";
+      }
+
+      // 6. 용역수수료 - 건당 별도 산정 (placeholder)
+      document.getElementById("fee-service").textContent = "별도 협의";
+    }
+
+    // 초기화
+    onStateChange();
+  </script>
+</body>
+</html>
